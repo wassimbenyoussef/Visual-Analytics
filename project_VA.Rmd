@@ -1,0 +1,179 @@
+---
+title: "Project_VA"
+author: "Wassim BEN YOUSSEF"
+date: "13 novembre 2016"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+setwd("c:/Users/wassim/Desktop/Masters/Semester1/Visual Analytics/coursework2")
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(plotly)
+library(magrittr)
+library(ggthemes)
+library(reshape2)
+library(stringr)
+library(readr)
+library(stringi)
+library(rpart)
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
+#install.packages("tree")
+library(tree)
+library(ggplot2) # Data visualization
+library(readr) # CSV file I/O, e.g. the read_csv function
+library(dplyr)
+library(reshape2)
+library(formattable)
+library(RColorBrewer)
+library(plotly)
+library(ggthemes)
+data <- read.csv("final_modified_data.csv", header = TRUE, sep = ",",na.strings=c(""," ","Null"))
+View(data)
+temp <- data
+temp %<>%  tbl_df() 
+df1 <- temp %>% select(BOROUGH, NUMBER.OF.PERSONS.INJURED)
+overall_tally_borough <- tally(group_by(df1, BOROUGH))
+names_borough <- overall_tally_borough$BOROUGH %>% unique() %>% dput() 
+names_borough %<>% tbl_df()
+borough1 <- tally(group_by(df1, BOROUGH, NUMBER.OF.PERSONS.INJURED))
+borough2 <- borough1
+borough2 %<>% select(c(BOROUGH, NUMBER.OF.PERSONS.INJURED, n))
+
+
+nb_injured_per_borough <- names_borough 
+nb_injured_per_borough[,"Borough"] <- names_borough 
+nb_injured_per_borough[,1] <- NULL
+nb_injured_per_borough[1, "Number_of_accidents_with_injured"] <- 136
+nb_injured_per_borough[2, "Number_of_accidents_with_injured"] <- 366
+nb_injured_per_borough[3, "Number_of_accidents_with_injured"] <- 163
+nb_injured_per_borough[4, "Number_of_accidents_with_injured"] <- 287
+nb_injured_per_borough[5, "Number_of_accidents_with_injured"] <- 39
+
+nb_injured_per_borough[1, "Proba_to_be_injured"] <- 136/673
+nb_injured_per_borough[2, "Proba_to_be_injured"] <- 366/1578
+nb_injured_per_borough[3, "Proba_to_be_injured"] <- 163/1148
+nb_injured_per_borough[4, "Proba_to_be_injured"] <- 287/1386
+nb_injured_per_borough[5, "Proba_to_be_injured"] <- 39/215
+
+nb_injured_per_borough_plot <- nb_injured_per_borough %>%
+  ggplot() +
+  geom_bar(mapping = aes(reorder(Borough, -Proba_to_be_injured), y=Proba_to_be_injured, fill=Proba_to_be_injured, text=paste("Number of Injured: ", n, sep="")), stat='identity') +
+  scale_fill_gradient("Count", low="blue", high = "red") +
+  theme_solarized_2(light = FALSE) +
+  scale_colour_solarized("red") +
+  theme(axis.text.x = element_text(angle = 90))+
+  labs(title = "Probability to be injured when having a vehicle collision per Borough", 
+    x = "Borough", y = "Probability to be injured")
+ggplotly(nb_injured_per_borough_plot)
+
+
+temp2 <- data
+temp2 %<>%  tbl_df() 
+df1 <- temp2 %>% select(CONTRIBUTING.FACTOR.VEHICLE.1, NUMBER.OF.PERSONS.INJURED)
+overall_tally_contribution <- tally(group_by(df1, CONTRIBUTING.FACTOR.VEHICLE.1))
+names_contribution <- overall_tally_contribution$CONTRIBUTING.FACTOR.VEHICLE.1 %>% unique() %>% dput() 
+names_contribution %<>% tbl_df()
+contr1 <- tally(group_by(df1, CONTRIBUTING.FACTOR.VEHICLE.1, NUMBER.OF.PERSONS.INJURED))
+contr1 %<>% select(c(CONTRIBUTING.FACTOR.VEHICLE.1, NUMBER.OF.PERSONS.INJURED, n))
+
+nb_injured_per_contribution <- names_contribution
+nb_injured_per_contribution[,"Contribution"] <- names_contribution
+nb_injured_per_contribution[,1] <- NULL
+nb_injured_per_contribution[2, "Number_of_accidents_with_injured"] <- 2 
+nb_injured_per_contribution[3, "Number_of_accidents_with_injured"] <- 13
+nb_injured_per_contribution[5, "Number_of_accidents_with_injured"] <- 12
+nb_injured_per_contribution[6, "Number_of_accidents_with_injured"] <- 6
+nb_injured_per_contribution[8, "Number_of_accidents_with_injured"] <- 1
+nb_injured_per_contribution[9, "Number_of_accidents_with_injured"] <- 192
+nb_injured_per_contribution[10, "Number_of_accidents_with_injured"] <- 14
+nb_injured_per_contribution[12, "Number_of_accidents_with_injured"] <- 1
+nb_injured_per_contribution[13, "Number_of_accidents_with_injured"] <- 3
+nb_injured_per_contribution[14, "Number_of_accidents_with_injured"] <- 140
+nb_injured_per_contribution[15, "Number_of_accidents_with_injured"] <- 30
+nb_injured_per_contribution[16, "Number_of_accidents_with_injured"] <- 4
+nb_injured_per_contribution[17, "Number_of_accidents_with_injured"] <- 25
+nb_injured_per_contribution[18, "Number_of_accidents_with_injured"] <- 4
+nb_injured_per_contribution[19, "Number_of_accidents_with_injured"] <- 5
+nb_injured_per_contribution[21, "Number_of_accidents_with_injured"] <- 8
+nb_injured_per_contribution[23, "Number_of_accidents_with_injured"] <- 1
+nb_injured_per_contribution[24, "Number_of_accidents_with_injured"] <- 37
+nb_injured_per_contribution[25, "Number_of_accidents_with_injured"] <- 8
+nb_injured_per_contribution[26, "Number_of_accidents_with_injured"] <- 41
+nb_injured_per_contribution[27, "Number_of_accidents_with_injured"] <- 2
+nb_injured_per_contribution[28, "Number_of_accidents_with_injured"] <- 14
+nb_injured_per_contribution[29, "Number_of_accidents_with_injured"] <- 5
+nb_injured_per_contribution[30, "Number_of_accidents_with_injured"] <- 1
+nb_injured_per_contribution[31, "Number_of_accidents_with_injured"] <- 14
+nb_injured_per_contribution[32, "Number_of_accidents_with_injured"] <- 9
+nb_injured_per_contribution[33, "Number_of_accidents_with_injured"] <- 28
+nb_injured_per_contribution[34, "Number_of_accidents_with_injured"] <- 13
+nb_injured_per_contribution[35, "Number_of_accidents_with_injured"] <- 5
+nb_injured_per_contribution[36, "Number_of_accidents_with_injured"] <- 1
+nb_injured_per_contribution[37, "Number_of_accidents_with_injured"] <- 1
+nb_injured_per_contribution[38, "Number_of_accidents_with_injured"] <- 1
+nb_injured_per_contribution[39, "Number_of_accidents_with_injured"] <- 28
+nb_injured_per_contribution[40, "Number_of_accidents_with_injured"] <- 8
+nb_injured_per_contribution[41, "Number_of_accidents_with_injured"] <- 5
+nb_injured_per_contribution[42, "Number_of_accidents_with_injured"] <- 7
+nb_injured_per_contribution[43, "Number_of_accidents_with_injured"] <- 337
+nb_injured_per_contribution[44, "Number_of_accidents_with_injured"] <- 13
+
+nb_injured_per_contribution[2, "Proba_to_be_injured"] <- 2/20
+nb_injured_per_contribution[3, "Proba_to_be_injured"] <- 13/42
+nb_injured_per_contribution[5, "Proba_to_be_injured"] <- 12/166
+nb_injured_per_contribution[6, "Proba_to_be_injured"] <- 6/19
+nb_injured_per_contribution[8, "Proba_to_be_injured"] <- 1/1
+nb_injured_per_contribution[9, "Proba_to_be_injured"] <- 192/873
+nb_injured_per_contribution[10, "Proba_to_be_injured"] <- 14/78
+nb_injured_per_contribution[12, "Proba_to_be_injured"] <- 1
+nb_injured_per_contribution[13, "Proba_to_be_injured"] <- 3/18
+nb_injured_per_contribution[14, "Proba_to_be_injured"] <- 140/375
+nb_injured_per_contribution[15, "Proba_to_be_injured"] <- 30/216
+nb_injured_per_contribution[16, "Proba_to_be_injured"] <- 4/8
+nb_injured_per_contribution[17, "Proba_to_be_injured"] <- 25/99
+nb_injured_per_contribution[18, "Proba_to_be_injured"] <- 4/12
+nb_injured_per_contribution[19, "Proba_to_be_injured"] <- 5/19
+nb_injured_per_contribution[25, "Proba_to_be_injured"] <- 8/236
+nb_injured_per_contribution[26, "Proba_to_be_injured"] <- 6/
+nb_injured_per_contribution[27, "Proba_to_be_injured"] <- 2/31
+nb_injured_per_contribution[28, "Proba_to_be_injured"] <- 14/27
+nb_injured_per_contribution[29, "Proba_to_be_injured"] <- 5/54
+nb_injured_per_contribution[30, "Proba_to_be_injured"] <- 1/5
+nb_injured_per_contribution[31, "Proba_to_be_injured"] <- 14/36
+nb_injured_per_contribution[32, "Proba_to_be_injured"] <- 9/14
+nb_injured_per_contribution[33, "Proba_to_be_injured"] <- 28/61
+nb_injured_per_contribution[34, "Proba_to_be_injured"] <- 13/90
+nb_injured_per_contribution[35, "Proba_to_be_injured"] <- 5/16
+nb_injured_per_contribution[36, "Proba_to_be_injured"] <- 1/4
+nb_injured_per_contribution[37, "Proba_to_be_injured"] <- 1/4
+nb_injured_per_contribution[38, "Proba_to_be_injured"] <- 1
+nb_injured_per_contribution[39, "Proba_to_be_injured"] <- 28/76
+nb_injured_per_contribution[40, "Proba_to_be_injured"] <- 8/140
+nb_injured_per_contribution[41, "Proba_to_be_injured"] <- 5/48
+nb_injured_per_contribution[42, "Proba_to_be_injured"] <- 7/22
+nb_injured_per_contribution[43, "Proba_to_be_injured"] <- 337/1972
+nb_injured_per_contribution[44, "Proba_to_be_injured"] <- 13/32
+
+nb_injured_per_contribution <- na.omit(nb_injured_per_contribution)
+
+
+nb_injured_per_contribution_plot <- nb_injured_per_contribution %>%
+  ggplot() +
+  geom_bar(mapping = aes(reorder(Contribution, -Proba_to_be_injured), y=Proba_to_be_injured, fill=Proba_to_be_injured, text=paste("Number of Injured: ", n, sep="")), stat='identity') +
+  scale_fill_gradient("Count", low="blue", high = "red") +
+  theme_solarized_2(light = FALSE) +
+  scale_colour_solarized("red") +
+  theme(axis.text.x = element_text(angle = 90))+
+  labs(title = "Probability to be injured for each collision contribution", 
+    x = "Contribution", y = "Probability to be injured")
+ggplotly(nb_injured_per_contribution_plot)
+```
+
